@@ -1,0 +1,10 @@
+pandas
+numpy
+streamlit
+matplotlib
+seaborn
+gspread
+oauth2client
+scikit-learn
+google-api-python-client
+fpdf
