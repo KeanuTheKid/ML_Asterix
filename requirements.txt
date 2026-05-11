@@ -4,6 +4,7 @@ streamlit
 matplotlib
 seaborn
 plotly
+statsmodels
 gspread
 google-auth
 google-auth-oauthlib

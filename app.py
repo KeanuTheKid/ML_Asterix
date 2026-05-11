@@ -32,20 +32,21 @@ scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapi
 
 # try-except fängt Fehler ab, falls der Login zur Datenbank scheitert
 try:
-    # Login-Daten kommen aus Streamlit Secrets – so stehen keine Passwörter im Code
-    # gspread 6.x: service_account_from_dict() ist die korrekte API für dict-basierte Credentials
-    client = gspread.service_account_from_dict(
-        dict(st.secrets["google_credentials"]),
-        scopes=scopes
-    )
+    import json, traceback as _tb
+    # JSON-Roundtrip stellt sicher, dass alle Werte echte Python-Typen sind (kein TOML-Wrapper).
+    # Das ist nötig weil Streamlit Cloud st.secrets als tomlkit-Objekte zurückgibt,
+    # die von google-auth nicht immer korrekt verarbeitet werden.
+    creds_info = json.loads(json.dumps(dict(st.secrets["google_credentials"])))
+    client = gspread.service_account_from_dict(creds_info, scopes=scopes)
     # Google Sheet "Dataset" öffnen und alle Daten als Liste laden
     sheet = client.open("Dataset").sheet1
     data = sheet.get_all_records()
-
     # Pandas DataFrame: wie eine Excel-Tabelle in Python – ermöglicht schnelles Filtern und Rechnen
     df = pd.DataFrame(data)
 except Exception as e:
-    st.error(f"Fehler bei der Verbindung zur Datenbank: {e}")
+    st.error(f"Datenbankfehler [{type(e).__name__}]: {e}")
+    with st.expander("🔍 Details (für Debugging)"):
+        st.code(_tb.format_exc())
     st.stop()
 
 # ==========================================
