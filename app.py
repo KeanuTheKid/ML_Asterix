@@ -72,9 +72,11 @@ try:
     creds_info = json.loads(json.dumps(dict(st.secrets["google_credentials"])))
     client = gspread.service_account_from_dict(creds_info, scopes=scopes)
 
-    # Sheet per ID öffnen (robuster als per Name, kein Drive-Quota nötig)
-    # Die ID kommt aus den Streamlit Secrets: spreadsheet_id = "..."
-    spreadsheet_id = st.secrets["spreadsheet_id"]
+    # Sheet per ID öffnen – ID aus Secrets lesen (beide TOML-Positionen werden unterstützt)
+    spreadsheet_id = (
+        st.secrets.get("spreadsheet_id")
+        or st.secrets.get("google_credentials", {}).get("spreadsheet_id")
+    )
     sheet = client.open_by_key(spreadsheet_id).sheet1
 
     # Erster Start: Sheet ist leer → Beispieldaten schreiben
