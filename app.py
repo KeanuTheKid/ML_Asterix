@@ -79,14 +79,20 @@ try:
     )
     sheet = client.open_by_key(spreadsheet_id).sheet1
 
-    # Erster Start: Sheet ist leer → Beispieldaten schreiben
-    existing = sheet.get_all_values()
-    if not existing:
-        sheet.update("A1", SAMPLE_DATA)
-
+    # Records lesen – wenn leer (auch bei leeren Dummy-Zeilen), Sheet bereinigen und Beispieldaten schreiben
     data = sheet.get_all_records()
+    if not data:
+        sheet.clear()                  # Leere Zeilen/Formatierung entfernen
+        sheet.update("A1", SAMPLE_DATA)
+        data = sheet.get_all_records() # Nach dem Schreiben neu einlesen
+
     # Pandas DataFrame: wie eine Excel-Tabelle in Python – ermöglicht schnelles Filtern und Rechnen
     df = pd.DataFrame(data)
+
+    # Numerische Spalten explizit konvertieren (gspread liefert manchmal Strings zurück)
+    for _col in ["Age", "TrainingAttendanceRate", "FitnessScore", "Goals", "PerformanceScore"]:
+        if _col in df.columns:
+            df[_col] = pd.to_numeric(df[_col], errors="coerce")
 except Exception as e:
     st.error(f"Datenbankfehler [{type(e).__name__}]: {e}")
     with st.expander("🔍 Details (für Debugging)"):
@@ -161,6 +167,10 @@ elif st.session_state.page == "Dashboard":
     if st.button("⬅️ Homepage"):
         st.session_state.page = "Home"
         st.rerun()
+
+    if df.empty:
+        st.warning("Keine Daten vorhanden. Bitte füge zuerst Spieler unter 'Data Management' hinzu.")
+        st.stop()
 
     # --- Club Overview: Kennzahlen auf einen Blick ---
     st.subheader("Club Overview")
@@ -239,6 +249,10 @@ elif st.session_state.page == "Machine Learning":
     if st.button("⬅️ Homepage"):
         st.session_state.page = "Home"
         st.rerun()
+
+    if df.empty:
+        st.warning("Keine Daten vorhanden. Bitte füge zuerst Spieler unter 'Data Management' hinzu.")
+        st.stop()
 
     # Spalten-Definitionen: Was gibt das Modell rein, was soll es lernen?
     CATEGORICAL = ["InjuryStatus", "Position", "Gender"]   # Text-Spalten
