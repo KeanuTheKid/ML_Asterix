@@ -679,13 +679,13 @@ elif st.session_state.page == "Contribution":
     st.subheader("Das Team")
     team_col1, team_col2, team_col3 = st.columns(3)
     with team_col1:
-        st.markdown("### Keanu")
+        st.markdown("### Teammitglied 1")
         st.write("Projektleitung, Google Sheets Integration, Authentifizierung, Deployment auf Streamlit Cloud")
     with team_col2:
-        st.markdown("### Benjamin")
+        st.markdown("### Teammitglied 2")
         st.write("Machine Learning Modelle (KNN, Decision Tree), Feature Engineering, Modellbewertung")
     with team_col3:
-        st.markdown("### Brice")
+        st.markdown("### Teammitglied 3")
         st.write("Dashboard Visualisierungen, Player Report, PDF-Export, UI-Design")
 
     st.markdown("---")
@@ -696,7 +696,7 @@ elif st.session_state.page == "Contribution":
 
     # DataFrame für die Tabelle: Zeilen = Anforderungen, Spalten = Teammitglieder
     matrix_data = {
-        "Anforderung":  [
+        "Anforderung": [
             "1. Problemformulierung",
             "2. API / Datenbank (Google Sheets)",
             "3. Datenvisualisierung (Dashboard)",
@@ -706,9 +706,9 @@ elif st.session_state.page == "Contribution":
             "7. Contribution Matrix",
             "8. Präsentationsvideo",
         ],
-        "Keanu":      ["✅", "✅", "",   "✅", "",   "✅", "✅", "✅"],
-        "Benjamin":   ["",   "",   "",   "",   "✅", "✅", "",   "✅"],
-        "Brice":      ["✅", "",   "✅", "✅", "",   "✅", "",   "✅"],
+        "Teammitglied 1": ["✅", "✅", "",   "✅", "",   "✅", "✅", "✅"],
+        "Teammitglied 2": ["",   "",   "",   "",   "✅", "✅", "",   "✅"],
+        "Teammitglied 3": ["✅", "",   "✅", "✅", "",   "✅", "",   "✅"],
     }
 
     matrix_df = pd.DataFrame(matrix_data)
@@ -720,7 +720,7 @@ elif st.session_state.page == "Contribution":
     st.subheader("Geschätzter Arbeitsaufwand")
     effort_fig = px.pie(
         values=[35, 35, 30],
-        names=["Keanu", "Benjamin", "Brice"],
+        names=["Teammitglied 1", "Teammitglied 2", "Teammitglied 3"],
         title="Arbeitsaufwand-Verteilung (geschätzt)",
         color_discrete_sequence=["#4A90D9", "#E8A838", "#50C878"]
     )
