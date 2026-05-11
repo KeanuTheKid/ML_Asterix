@@ -72,14 +72,15 @@ try:
     creds_info = json.loads(json.dumps(dict(st.secrets["google_credentials"])))
     client = gspread.service_account_from_dict(creds_info, scopes=scopes)
 
-    # Sheet öffnen – falls es nicht existiert, wird es automatisch erstellt und mit Beispieldaten befüllt
-    try:
-        sheet = client.open("Football Dataset").sheet1
-    except gspread.SpreadsheetNotFound:
-        # Erster Start: Sheet anlegen und Beispieldaten schreiben
-        spreadsheet = client.create("Football Dataset")
-        sheet = spreadsheet.sheet1
-        sheet.update("A1", SAMPLE_DATA)  # Alle Zeilen auf einmal schreiben (schneller als append_row)
+    # Sheet per ID öffnen (robuster als per Name, kein Drive-Quota nötig)
+    # Die ID kommt aus den Streamlit Secrets: spreadsheet_id = "..."
+    spreadsheet_id = st.secrets["spreadsheet_id"]
+    sheet = client.open_by_key(spreadsheet_id).sheet1
+
+    # Erster Start: Sheet ist leer → Beispieldaten schreiben
+    existing = sheet.get_all_values()
+    if not existing:
+        sheet.update("A1", SAMPLE_DATA)
 
     data = sheet.get_all_records()
     # Pandas DataFrame: wie eine Excel-Tabelle in Python – ermöglicht schnelles Filtern und Rechnen
