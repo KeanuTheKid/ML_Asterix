@@ -3,6 +3,7 @@ numpy
 streamlit
 matplotlib
 seaborn
+plotly
 gspread
 google-auth
 google-auth-oauthlib
