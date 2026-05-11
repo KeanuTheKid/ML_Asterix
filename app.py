@@ -29,13 +29,14 @@ scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapi
 
 # Wir versuchen uns bei Google einzuloggen. Das "try-except" fängt Fehler ab, falls der Login scheitert.
 try:
-    # Holt die geheimen Login-Daten (API-Keys) aus den Streamlit Secrets. 
+    # Holt die geheimen Login-Daten (API-Keys) aus den Streamlit Secrets.
     # So stehen keine Passwörter direkt im Code!
     credentials = Credentials.from_service_account_info(
         st.secrets["google_credentials"],
         scopes=scopes
     )
-    client = gspread.authorize(credentials) # Loggt uns bei Google Sheets ein
+    # gspread 6.x: gspread.authorize() wurde entfernt, stattdessen gspread.Client(auth=...)
+    client = gspread.Client(auth=credentials)
     
     # Wir öffnen das Google Sheet mit dem Namen "Dataset" und wählen das erste Tabellenblatt (sheet1)
     sheet = client.open("Dataset").sheet1

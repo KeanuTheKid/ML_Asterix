@@ -4,7 +4,8 @@ streamlit
 matplotlib
 seaborn
 gspread
-oauth2client
+google-auth
+google-auth-oauthlib
 scikit-learn
 google-api-python-client
 fpdf
