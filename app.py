@@ -31,12 +31,11 @@ scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapi
 try:
     # Holt die geheimen Login-Daten (API-Keys) aus den Streamlit Secrets.
     # So stehen keine Passwörter direkt im Code!
-    credentials = Credentials.from_service_account_info(
-        st.secrets["google_credentials"],
+    # gspread 6.x: service_account_from_dict() ist die korrekte Methode für dict-basierte Credentials
+    client = gspread.service_account_from_dict(
+        dict(st.secrets["google_credentials"]),
         scopes=scopes
     )
-    # gspread 6.x: gspread.authorize() wurde entfernt, stattdessen gspread.Client(auth=...)
-    client = gspread.Client(auth=credentials)
     
     # Wir öffnen das Google Sheet mit dem Namen "Dataset" und wählen das erste Tabellenblatt (sheet1)
     sheet = client.open("Dataset").sheet1
