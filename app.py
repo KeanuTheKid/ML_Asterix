@@ -30,16 +30,57 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder  # Datenaufbereit
 # 'scopes' definiert, auf welche Google-Dienste wir zugreifen
 scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 
+# Beispieldaten für die automatische Sheet-Erstellung beim ersten Start
+SAMPLE_DATA = [
+    ["PlayerName","Age","Gender","Position","InjuryStatus","TrainingAttendanceRate","FitnessScore","Goals","PerformanceScore"],
+    ["Luca Meier",24,"Male","Forward","Fit",92,88,18,84],
+    ["Thomas Müller",28,"Male","Midfielder","Fit",85,79,9,76],
+    ["Jonas Becker",31,"Male","Defender","Recovering",70,65,2,62],
+    ["Kevin Wolf",19,"Male","Goalkeeper","Fit",95,91,0,80],
+    ["Mario Huber",26,"Male","Forward","Injured",40,55,6,48],
+    ["Nico Braun",22,"Male","Midfielder","Fit",88,82,12,79],
+    ["Felix Schulz",29,"Male","Defender","Fit",78,74,3,71],
+    ["Philipp Koch",33,"Male","Forward","Recovering",60,60,5,55],
+    ["Stefan Vogel",21,"Male","Midfielder","Fit",90,85,10,81],
+    ["Andreas Mayer",27,"Male","Goalkeeper","Fit",83,77,0,73],
+    ["Leon Roth",23,"Male","Defender","Fit",87,83,4,78],
+    ["Tobias Haas",30,"Male","Forward","Fit",76,72,14,74],
+    ["Jan Krause",25,"Male","Midfielder","Injured",35,50,4,42],
+    ["Sven Fischer",18,"Male","Forward","Fit",93,90,20,88],
+    ["Markus Lorenz",32,"Male","Defender","Fit",72,68,1,64],
+    ["Sarah König",24,"Female","Forward","Fit",91,87,16,83],
+    ["Laura Bauer",27,"Female","Midfielder","Fit",84,80,8,77],
+    ["Julia Hoffmann",22,"Female","Defender","Fit",89,85,3,80],
+    ["Nina Richter",26,"Female","Goalkeeper","Recovering",65,62,0,58],
+    ["Anna Werner",20,"Female","Forward","Fit",94,92,19,89],
+    ["Lisa Schmitt",29,"Female","Midfielder","Injured",38,52,5,44],
+    ["Marie Lange",23,"Female","Defender","Fit",86,81,2,77],
+    ["Eva Lehmann",31,"Female","Forward","Fit",74,70,11,70],
+    ["Sophie Neumann",25,"Female","Midfielder","Fit",88,84,9,80],
+    ["Klara Zimmermann",28,"Female","Goalkeeper","Fit",80,76,0,72],
+    ["Hanna Dietrich",21,"Female","Defender","Fit",92,89,4,84],
+    ["Emma Schröder",33,"Female","Forward","Recovering",58,57,7,52],
+    ["Mia Krüger",19,"Female","Midfielder","Fit",96,93,13,90],
+    ["Clara Hartmann",30,"Female","Defender","Fit",71,67,1,63],
+    ["Ida Baumann",26,"Female","Forward","Injured",42,54,8,46],
+]
+
 # try-except fängt Fehler ab, falls der Login zur Datenbank scheitert
 try:
     import json, traceback as _tb
-    # JSON-Roundtrip stellt sicher, dass alle Werte echte Python-Typen sind (kein TOML-Wrapper).
-    # Das ist nötig weil Streamlit Cloud st.secrets als tomlkit-Objekte zurückgibt,
-    # die von google-auth nicht immer korrekt verarbeitet werden.
+    # JSON-Roundtrip: wandelt tomlkit-Objekte (Streamlit Cloud) in echte Python-Strings um
     creds_info = json.loads(json.dumps(dict(st.secrets["google_credentials"])))
     client = gspread.service_account_from_dict(creds_info, scopes=scopes)
-    # Google Sheet "Dataset" öffnen und alle Daten als Liste laden
-    sheet = client.open("Dataset").sheet1
+
+    # Sheet öffnen – falls es nicht existiert, wird es automatisch erstellt und mit Beispieldaten befüllt
+    try:
+        sheet = client.open("Football Dataset").sheet1
+    except gspread.SpreadsheetNotFound:
+        # Erster Start: Sheet anlegen und Beispieldaten schreiben
+        spreadsheet = client.create("Football Dataset")
+        sheet = spreadsheet.sheet1
+        sheet.update("A1", SAMPLE_DATA)  # Alle Zeilen auf einmal schreiben (schneller als append_row)
+
     data = sheet.get_all_records()
     # Pandas DataFrame: wie eine Excel-Tabelle in Python – ermöglicht schnelles Filtern und Rechnen
     df = pd.DataFrame(data)
